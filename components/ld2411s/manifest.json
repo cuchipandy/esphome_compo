@@ -1,0 +1,6 @@
+{
+  "domain": "ld2411s",
+  "name": "LD2411S Sensor",
+  "dependencies": ["uart"],
+  "codeowners": ["@cuchipandy"]
+}

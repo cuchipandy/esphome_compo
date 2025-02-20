@@ -8,6 +8,13 @@ DEPENDENCIES = ["uart"]
 ld2411s_ns = cg.esphome_ns.namespace("ld2411s")
 LD2411SSensor = ld2411s_ns.class_("LD2411SSensor", cg.PollingComponent, uart.UARTDevice)
 
+def setup_ld2411s(config):
+    var = cg.new_Pvariable(config[CONF_ID])
+    yield cg.register_component(var, config)
+    yield sensor.register_sensor(var, config)
+    return var
+
+
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(LD2411SSensor),

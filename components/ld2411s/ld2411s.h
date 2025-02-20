@@ -8,7 +8,7 @@
 
 namespace esphome {
 
-class LD2411SComponent : public Component, public uart::UARTDevice {
+class LD2411SComponent : public Component {  // Elimina la herencia de uart::UARTDevice
  public:
   LD2411SComponent(const std::string &name) : name_(name) {}
 
@@ -22,6 +22,7 @@ class LD2411SComponent : public Component, public uart::UARTDevice {
   void set_min_presence_sensor(sensor::Sensor *min_presence_sensor) { min_presence_sensor_ = min_presence_sensor; }
   void set_max_presence_sensor(sensor::Sensor *max_presence_sensor) { max_presence_sensor_ = max_presence_sensor; }
   void set_unoccupied_time_sensor(sensor::Sensor *unoccupied_time_sensor) { unoccupied_time_sensor_ = unoccupied_time_sensor; }
+  void set_uart(uart::UART *uart) { uart_ = uart; }
 
   sensor::Sensor *get_min_motion_sensor() const { return min_motion_sensor_; }
   sensor::Sensor *get_max_motion_sensor() const { return max_motion_sensor_; }
@@ -38,6 +39,7 @@ class LD2411SComponent : public Component, public uart::UARTDevice {
   sensor::Sensor *min_presence_sensor_ = nullptr;
   sensor::Sensor *max_presence_sensor_ = nullptr;
   sensor::Sensor *unoccupied_time_sensor_ = nullptr;
+  uart::UART *uart_ = nullptr;  // Agrega un puntero al componente UART
 
   uint8_t read_buffer_[256];
   size_t read_buffer_pos_{0};

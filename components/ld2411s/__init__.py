@@ -23,7 +23,7 @@ CODEOWNERS = ["@your_github_username"]  # Reemplaza con tu nombre de usuario de 
 
 DEPENDENCIES = ["uart"]
 
-LD2411SComponent = cg.global_ns.class_("LD2411SComponent", cg.Component, uart.UARTDevice)
+LD2411SComponent = cg.global_ns.class_("LD2411SComponent", cg.Component)  # Elimina la herencia de uart::UARTDevice aquí
 UARTSensor = cg.global_ns.class_("UARTSensor")
 
 CONF_DISTANCE_SENSOR_ID = "distance_sensor_id"
@@ -46,7 +46,7 @@ CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(LD2411SComponent),
         cv.Required(CONF_NAME): cv.string,
-        cv.Required(CONF_UART_ID): cv.use_id(uart.UART),
+        cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),  # Usa uart.UARTComponent en lugar de uart.UART
         cv.Optional(CONF_MIN_MOTION): sensor.sensor_schema(
             UNIT_CENTIMETER, ICON="mdi:ruler", accuracy_decimals=0
         ),

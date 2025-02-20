@@ -40,11 +40,13 @@ CONF_MAX_MOTION = "max_motion"
 CONF_MIN_PRESENCE = "min_presence"
 CONF_MAX_PRESENCE = "max_presence"
 CONF_UNOCCUPIED_TIME = "unoccupied_time"
+CONF_UART_ID = "uart_id"
 
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(LD2411SComponent),
         cv.Required(CONF_NAME): cv.string,
+        cv.Required(CONF_UART_ID): cv.use_id(uart.UART),
         cv.Optional(CONF_MIN_MOTION): sensor.sensor_schema(
             UNIT_CENTIMETER, ICON="mdi:ruler", accuracy_decimals=0
         ),
@@ -61,7 +63,7 @@ CONFIG_SCHEMA = cv.Schema(
             UNIT_SECOND, ICON="mdi:timer", accuracy_decimals=0
         ),
     }
-).extend(cv.COMPONENT_SCHEMA).extend(uart.UART_DEVICE_SCHEMA)
+).extend(cv.COMPONENT_SCHEMA)
 
 RESET_SYSTEM_ACTION_SCHEMA = automation.maybe_simple_value(
     cv.Schema(
@@ -88,7 +90,10 @@ async def to_code(config):
 
     var = cg.new_Pvariable(config[CONF_ID], config[CONF_NAME])
     await cg.register_component(var, config)
-    await uart.register_uart_device(var, config)
+    
+    # Get the UART component by ID
+    uart_component = await cg.get_variable(config[CONF_UART_ID])
+    cg.add(var.set_uart(uart_component))
 
     cg.add(var.set_name(config[CONF_NAME]))
 

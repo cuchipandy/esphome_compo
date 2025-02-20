@@ -19,7 +19,7 @@ from esphome.const import (
     CONF_DATA
 )
 
-CODEOWNERS = ["@your_github_username"]  # Reemplaza con tu nombre de usuario de GitHub
+CODEOWNERS = ["@cuchipandy"]  # Reemplaza con tu nombre de usuario de GitHub
 
 DEPENDENCIES = ["uart"]
 

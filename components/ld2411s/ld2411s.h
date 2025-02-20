@@ -1,80 +1,65 @@
+// ld2411s.h
 #pragma once
 
-#include "esphome.h"
+#include "esphome/core/component.h"
+#include "esphome/components/uart/uart.h"
+#include "esphome/components/sensor/sensor.h"
+#include <Ticker.h>
 
 namespace esphome {
-namespace ld2411s {
 
-class LD2411SSensor : public Component, public UARTDevice {
+class LD2411SComponent : public Component, public uart::UARTDevice {
  public:
-  LD2411SSensor(UARTComponent *parent) : UARTDevice(parent) {}
+  LD2411SComponent(const std::string &name) : name_(name) {}
 
-  Sensor *presence_sensor{new Sensor()};
-  Sensor *motion_sensor{new Sensor()};
-  Sensor *distance_sensor{new Sensor()};
-  Sensor *max_motion_sensor{new Sensor()};
-  Sensor *min_motion_sensor{new Sensor()};
-  Sensor *max_presence_sensor{new Sensor()};
-  Sensor *min_presence_sensor{new Sensor()};
-  Sensor *unocc_time_sensor{new Sensor()};
+  void setup() override;
+  void loop() override;
+  void dump_config() override;
 
-  void setup() override {}
+  void set_name(std::string name) { name_ = name; }
+  void set_min_motion_sensor(sensor::Sensor *min_motion_sensor) { min_motion_sensor_ = min_motion_sensor; }
+  void set_max_motion_sensor(sensor::Sensor *max_motion_sensor) { max_motion_sensor_ = max_motion_sensor; }
+  void set_min_presence_sensor(sensor::Sensor *min_presence_sensor) { min_presence_sensor_ = min_presence_sensor; }
+  void set_max_presence_sensor(sensor::Sensor *max_presence_sensor) { max_presence_sensor_ = max_presence_sensor; }
+  void set_unoccupied_time_sensor(sensor::Sensor *unoccupied_time_sensor) { unoccupied_time_sensor_ = unoccupied_time_sensor; }
 
-  void loop() override {
-    while (available()) {
-      uint8_t byte = read();
-      this->bytes_.push_back(byte);
+  sensor::Sensor *get_min_motion_sensor() const { return min_motion_sensor_; }
+  sensor::Sensor *get_max_motion_sensor() const { return max_motion_sensor_; }
+  sensor::Sensor *get_min_presence_sensor() const { return min_presence_sensor_; }
+  sensor::Sensor *get_max_presence_sensor() const { return max_presence_sensor_; }
+  sensor::Sensor *get_unoccupied_time_sensor() const { return unoccupied_time_sensor_; }
 
-      if (this->bytes_.size() >= 2 &&
-          ((this->bytes_[this->bytes_.size() - 2] == 0x55 && this->bytes_[this->bytes_.size() - 1] == 0x55) ||
-           (this->bytes_.size() >= 4 && this->bytes_[this->bytes_.size() - 4] == 0x04 &&
-            this->bytes_[this->bytes_.size() - 3] == 0x03 && this->bytes_[this->bytes_.size() - 2] == 0x02 &&
-            this->bytes_[this->bytes_.size() - 1] == 0x01))) {
-        this->process_packet_();
-        this->bytes_.clear();
-      }
-    }
-  }
+  void reset_system();
 
  protected:
-  void process_packet_() {
-    if (this->bytes_.size() < 3)
-      return;
+  std::string name_;
+  sensor::Sensor *min_motion_sensor_ = nullptr;
+  sensor::Sensor *max_motion_sensor_ = nullptr;
+  sensor::Sensor *min_presence_sensor_ = nullptr;
+  sensor::Sensor *max_presence_sensor_ = nullptr;
+  sensor::Sensor *unoccupied_time_sensor_ = nullptr;
 
-    if (this->bytes_[0] == 0xAA && this->bytes_[1] == 0xAA) {
-      switch (this->bytes_[2]) {
-        case 0x00:
-          this->presence_sensor->publish_state(0);
-          this->motion_sensor->publish_state(0);
-          break;
-        case 0x01:
-        case 0x02:
-          this->presence_sensor->publish_state(1);
-          this->motion_sensor->publish_state(this->bytes_[2] == 0x01);
-          if (this->bytes_.size() >= 5) {
-            uint16_t distance = (this->bytes_[4] << 8) | this->bytes_[3];
-            this->distance_sensor->publish_state(distance);
-          }
-          break;
-      }
-    } else if (this->bytes_.size() >= 20 && this->bytes_[0] == 0xFD && this->bytes_[1] == 0xFC &&
-               this->bytes_[2] == 0xFB && this->bytes_[3] == 0xFA && this->bytes_[6] == 0x73 && this->bytes_[7] == 0x01) {
-      uint16_t max_motion = (this->bytes_[11] << 8) | this->bytes_[10];
-      uint16_t min_motion = (this->bytes_[13] << 8) | this->bytes_[12];
-      uint16_t max_presence = (this->bytes_[15] << 8) | this->bytes_[14];
-      uint16_t min_presence = (this->bytes_[17] << 8) | this->bytes_[16];
-      uint16_t unocc_time = (this->bytes_[19] << 8) | this->bytes_[18];
-
-      this->max_motion_sensor->publish_state(max_motion);
-      this->min_motion_sensor->publish_state(min_motion);
-      this->max_presence_sensor->publish_state(max_presence);
-      this->min_presence_sensor->publish_state(min_presence);
-      this->unocc_time_sensor->publish_state(unocc_time / 10.0f);
-    }
-  }
-
-  std::vector<uint8_t> bytes_;
+  uint8_t read_buffer_[256];
+  size_t read_buffer_pos_{0};
+  void process_data_();
 };
 
-}  // namespace ld2411s
+class UARTSensor {
+ public:
+    UARTSensor(uart::UARTDevice *uart_bus);
+    void update();
+
+    sensor::Sensor *distance_sensor;
+    sensor::Sensor *presence_sensor;
+    sensor::Sensor *motion_sensor;
+    sensor::Sensor *max_motion_sensor;
+    sensor::Sensor *min_motion_sensor;
+    sensor::Sensor *max_presence_sensor;
+    sensor::Sensor *min_presence_sensor;
+    sensor::Sensor *unocc_time_sensor;
+
+ private:
+    uart::UARTDevice *uart_bus_;
+};
+
 }  // namespace esphome

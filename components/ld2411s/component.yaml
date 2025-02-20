@@ -1,6 +1,0 @@
-name: "LD2411S"
-description: "Sensor de ocupación LD2411S"
-version: "1.0"
-requirements:
-  - esp-idf
-  - arduino

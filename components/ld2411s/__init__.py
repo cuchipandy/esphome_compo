@@ -19,7 +19,7 @@ from esphome.const import (
     CONF_DATA
 )
 
-CODEOWNERS = ["@cuchipandy"]  # Reemplaza con tu nombre de usuario de GitHub
+CODEOWNERS = ["@your_github_username"]  # Reemplaza con tu nombre de usuario de GitHub
 
 DEPENDENCIES = ["uart"]
 
@@ -46,7 +46,7 @@ CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(LD2411SComponent),
         cv.Required(CONF_NAME): cv.string,
-        cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),  # Usa uart.UARTComponent en lugar de uart.UART
+        cv.Required(CONF_UART_ID): cv.use_id(uart.UARTComponent),  # Usa uart.UARTComponent
         cv.Optional(CONF_MIN_MOTION): sensor.sensor_schema(
             UNIT_CENTIMETER, ICON="mdi:ruler", accuracy_decimals=0
         ),

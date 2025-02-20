@@ -12,9 +12,14 @@ void LD2411SComponent::setup() {
 }
 
 void LD2411SComponent::loop() {
-  while (available()) {
+  if (uart_ == nullptr) {
+    ESP_LOGW(TAG, "UART component is not set!");
+    return;
+  }
+
+  while (uart_->available()) {  // Usa uart_->available()
     uint8_t byte;
-    read(&byte, 1);
+    uart_->read(&byte, 1);      // Usa uart_->read()
     read_buffer_[read_buffer_pos_++] = byte;
     if (read_buffer_pos_ >= sizeof(read_buffer_)) {
       read_buffer_pos_ = 0;  // Overflow, reset buffer
@@ -26,7 +31,7 @@ void LD2411SComponent::loop() {
 void LD2411SComponent::dump_config() {
   ESP_LOGCONFIG(TAG, "LD2411S:");
   ESP_LOGCONFIG(TAG, "  Name: %s", this->name_.c_str());
-  LOG_UART_DEVICE(this);
+  //LOG_UART_DEVICE(this);  // Ya no es necesario
 
   if (this->min_motion_sensor_ != nullptr) {
     LOG_SENSOR("  ", "Min Motion Sensor", this->min_motion_sensor_);

@@ -1,6 +1,15 @@
 {
   "domain": "ld2411s",
-  "name": "LD2411S Sensor",
+  "name": "LD2411S Radar Sensor",
+  "documentation": "https://github.com/cuchipandy/esphome-ld2411s",
+  "issue_tracker": "https://github.com/cuchipandy/esphome-ld2411s/issues",
   "dependencies": ["uart"],
-  "codeowners": ["@cuchipandy"]
+  "codeowners": ["@cuchipandy"],
+  "version": "1.0.0",
+  "config_flow": false,
+  "iot_class": "local_push",
+  "requirements": [],
+  "esphome": {
+    "min_version": "2023.12.0"
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "files": [
+    "uart_sensor.h",
+    "uart_sensor.cpp"
+  ],
+  "includes": [],
+  "platforms": ["esp32", "esp8266"],
+  "name": "uart_sensor"
+}
